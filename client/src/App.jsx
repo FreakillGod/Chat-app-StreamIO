@@ -11,7 +11,20 @@ const apikey='4cp7vz28qrkb';
 //instance of the stream inorder for our chat to work
 const client=StreamChat.getInstance(apikey);
 
-const authToken=false;
+const cookies = new Cookies();
+const authToken=cookies.get("token");
+
+if(authToken){
+  client.connectUser(authToken,{                          //creates user (userid= id avatarrURL= image username=name)
+    id: cookies.get('userId'),
+    name: cookies.get('username'),
+    fullName: cookies.get('fullName'),
+    image: cookies.get('avatarURL'),
+    // token: cookies.get('token'),   alreay got it from line 15
+    hashedPassword: cookies.get('hashedPassword'),
+    phoneNumber: cookies.get('phoneNumber'),
+  })
+}
 
 const App = () => {
 

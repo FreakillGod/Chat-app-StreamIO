@@ -3,12 +3,50 @@ import Cookies from 'universal-cookie'
 import axios from 'axios'
 import signInImage from '../assets/signup.jpg'
 
+const cookies=new Cookies();
+const URL= 'http://localhost:5000/auth';
+
 const Auth = () => {
+
+    const initialState={
+        fullName:"",
+        username:"",
+        password:"",
+        confirmPassword:"",
+        phoneNumber:"",
+        avatarURL:""
+    }
+    const [form,setForm]=useState(initialState);
 
     const [signup, setSignup] = useState(true);
 
-    const handleChange = () => { }
+    const handleChange = async (e) => {
+        setForm({...form,[e.target.name]:e.target.value});
+        
+    }
+    const handleSubmit=async (e)=>{
+        e.preventDefault();
+        const {fullName,username,password,phoneNumber,avatarURL}=form;
 
+
+        const {data:{token, userId, hashedPassword}}= await axios.post(`${URL}/${signup?'signup':'login'}`,{
+            fullName,username,password,avatarURL,phoneNumber,
+        })
+
+        cookies.set('token',token)
+        cookies.set('username',username)
+        cookies.set('fullName',fullName)
+        cookies.set('userId',userId)
+
+        if(signup){
+            cookies.set('phoneNumber',phoneNumber);
+            cookies.set('avatarURL',avatarURL);
+            cookies.set('hashedPassword',hashedPassword);
+        }
+
+        window.location.reload();   //to reload after login or signup
+        
+    }
     const switchMode = ()=>{
         setSignup((prevSignup)=> !prevSignup);
     }
@@ -18,21 +56,22 @@ const Auth = () => {
             <div className='auth__form-container_fields'>
                 <div className='auth__form-container_fields-content'>
                     <p className=''>{signup ? 'Sign Up' : 'Sign-In'}</p>
-                    <form onSubmit={() => { }}>
+                    <form onSubmit={handleSubmit}>
                         {signup && (
                             <div className='auth__form-container_fields-content_input'>
-                                <label htmlfor="fullName">Full Name</label>
+                                <label htmlFor="fullName">Full Name</label>
                                 <input
                                     name="fullName"
                                     type="text"
                                     placeholder='Name'
                                     onChange={handleChange}
+                                    required
                                 />
                             </div>
 
                         )}
                         <div className='auth__form-container_fields-content_input'>
-                            <label htmlfor="username">User Name</label>
+                            <label htmlFor="username">User Name</label>
                             <input
                                 name="username"
                                 type="text"
@@ -42,7 +81,7 @@ const Auth = () => {
                         </div>
                         {signup && (
                             <div className='auth__form-container_fields-content_input'>
-                                <label htmlfor="PhoneNumber">Phone Number</label>
+                                <label htmlFor="PhoneNumber">Phone Number</label>
                                 <input
                                     name="phoneNumber"
                                     type="text"
@@ -53,7 +92,7 @@ const Auth = () => {
                         )}
                         {signup && (
                             <div className='auth__form-container_fields-content_input'>
-                                <label htmlfor="avatarURL">Avatar URL</label>
+                                <label htmlFor="avatarURL">Avatar URL</label>
                                 <input
                                     name="avatarURL"
                                     type="text"
@@ -63,7 +102,7 @@ const Auth = () => {
                             </div>
                         )}
                         <div className='auth__form-container_fields-content_input'>
-                            <label htmlfor="password">Password</label>
+                            <label htmlFor="password">Password</label>
                             <input
                                 name="password"
                                 type="password"
@@ -72,7 +111,7 @@ const Auth = () => {
                             />
                         </div>
                         {signup && (<div className='auth__form-container_fields-content_input'>
-                            <label htmlfor="confirmPassword">Confirm Password</label>
+                            <label htmlFor="confirmPassword">Confirm Password</label>
                             <input
                                 name="confirmPassword"
                                 type="text"
@@ -80,6 +119,9 @@ const Auth = () => {
                                 onChange={handleChange}
                             />
                         </div>)}
+                        <div className='auth__form-container_fields-content_button'>
+                            <button type='Submit'>{signup?'Sign UP':'Sign In'}</button>
+                        </div>
 
                     </form>
                     <div className='auth__form-container_fields-account'>
